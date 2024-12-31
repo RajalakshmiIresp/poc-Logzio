@@ -1,5 +1,5 @@
-﻿using log4net;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace LogzLogPoc.Controllers
 {
@@ -7,14 +7,18 @@ namespace LogzLogPoc.Controllers
     [Route("api/[controller]")]
     public class HealthCheckController : Controller
     {
-       private static readonly ILog logger = LogManager.GetLogger(typeof(HealthCheckController));
-        
+        private readonly ILogger<HealthCheckController> _logger;
+
+        // Constructor to inject the logger
+        public HealthCheckController(ILogger<HealthCheckController> logger)
+        {
+            _logger = logger;
+        }
+
         [HttpGet]
         public IActionResult Get()
         {
-            logger.Info("User Management Service Health check endpoint hit.");
-            logger.Warn("This is a warning log for testing Logz.io.");
-            logger.Error("This is an error log for testing Logz.io.");
+            _logger.LogInformation("HealthCheck endpoint accessed at {Timestamp}", System.DateTime.UtcNow);
             return Ok(new { status = "Healthy", timestamp = System.DateTime.UtcNow });
         }
         public IActionResult Index()

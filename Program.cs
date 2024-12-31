@@ -1,7 +1,11 @@
-using log4net;
-using log4net.Config;
+using OpenTelemetry.Logs;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Exporter;
 
-namespace LogzioLog4netSampleApplication
+
+namespace LogzioSampleApplication
 {
     public class Program
     {
@@ -9,10 +13,35 @@ namespace LogzioLog4netSampleApplication
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            const string serviceName = "UserManagement";
+            const string logzioEndpoint = "https://otlp-listener.logz.io/v1/logs";
+            const string logzioToken = "naXpPUcMWlfwVwDiLAvhriEIAtyxwvFz";
+            const string logzioMetricsToken = "vzGmoaiiHlUZWTMzAYQXuvxlKWpiYCyi";
             // Add services to the container.
             builder.Services.AddControllers();
 
-            XmlConfigurator.Configure();
+            builder.Logging.AddOpenTelemetry(options =>
+            {
+                options
+                    .SetResourceBuilder(
+                        ResourceBuilder.CreateDefault()
+                            .AddService(serviceName))
+                    .AddOtlpExporter(otlpOptions =>
+                    {
+                        otlpOptions.Endpoint = new Uri(logzioEndpoint);
+                        otlpOptions.Headers = $"Authorization=Bearer {logzioToken}, user-agent=logzio-dotnet-logs-otlp";
+                        otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
+                    });
+            });
+            builder.Services.AddOpenTelemetry()
+                            .ConfigureResource(resource => resource.AddService(serviceName))
+                            .WithTracing(tracing => tracing
+                            .AddAspNetCoreInstrumentation()
+                            .AddConsoleExporter())
+                            .WithMetrics(metrics => metrics
+                            .AddAspNetCoreInstrumentation()
+                            .AddConsoleExporter());
+
 
             var app = builder.Build();
 
