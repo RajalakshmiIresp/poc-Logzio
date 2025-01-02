@@ -15,7 +15,7 @@ namespace LogzioSampleApplication
 
             const string serviceName = "UserManagement";
             const string logzioEndpoint = "https://otlp-listener.logz.io/v1/logs";
-            const string logzioToken = "naXpPUcMWlfwVwDiLAvhriEIAtyxwvFz";
+            const string logzioToken = "znODgBxIztRFbVMOvYuXwUwGRTozaGbi";
             const string logzioMetricsToken = "vzGmoaiiHlUZWTMzAYQXuvxlKWpiYCyi";
             // Add services to the container.
             builder.Services.AddControllers();
@@ -29,11 +29,10 @@ namespace LogzioSampleApplication
                     .AddOtlpExporter(otlpOptions =>
                     {
                         otlpOptions.Endpoint = new Uri(logzioEndpoint);
-                        otlpOptions.Headers = $"Authorization=Bearer {logzioToken}, user-agent=logzio-dotnet-logs-otlp";
+                        otlpOptions.Headers = $"Authorization=Bearer {logzioToken}, user-agent=logzio-dotnet-logs-otlp, parseJsonMessage=true";
                         otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
                     });
                 options.IncludeFormattedMessage = true;
-
             });
             builder.Services.AddOpenTelemetry()
                             .ConfigureResource(resource => resource.AddService(serviceName))

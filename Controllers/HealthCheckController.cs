@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Reflection.Metadata;
+using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace LogzLogPoc.Controllers
@@ -8,6 +10,7 @@ namespace LogzLogPoc.Controllers
     public class HealthCheckController : Controller
     {
         private readonly ILogger<HealthCheckController> _logger;
+        private readonly string[] baseTags = { "cms", "dai", "AllocateAndLabel", "handler" };
 
         // Constructor to inject the logger
         public HealthCheckController(ILogger<HealthCheckController> logger)
@@ -18,7 +21,18 @@ namespace LogzLogPoc.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            _logger.LogInformation("HealthCheck endpoint accessed at {Timestamp}", System.DateTime.UtcNow);
+            // Default JSON value if no data is provided
+            var defaultJson = new Dictionary<string, object>
+        {
+            { "userId", 0 },
+            { "action", "default_action" },
+            { "status", "unknown" },
+            { "timestamp", DateTime.UtcNow }
+        };
+
+
+            _logger.LogInformation("HealthCheck endpoint accessed at New {Timestamp}", System.DateTime.UtcNow);
+            _logger.LogInformation("Combained: { orderId} {tags} {@metaData} {user.userID}", 1,baseTags, defaultJson,123);
             return Ok(new { status = "Healthy", timestamp = System.DateTime.UtcNow });
         }
         public IActionResult Index()
