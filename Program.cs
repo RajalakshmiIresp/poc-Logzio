@@ -32,6 +32,8 @@ namespace LogzioSampleApplication
                         otlpOptions.Headers = $"Authorization=Bearer {logzioToken}, user-agent=logzio-dotnet-logs-otlp";
                         otlpOptions.Protocol = OtlpExportProtocol.HttpProtobuf;
                     });
+                options.IncludeFormattedMessage = true;
+
             });
             builder.Services.AddOpenTelemetry()
                             .ConfigureResource(resource => resource.AddService(serviceName))
